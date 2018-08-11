@@ -1,11 +1,12 @@
 FROM percona:latest as build
-LABEL maintainer="Len Budney (len.budney@gmail.com)"
+ENV PASSWORD secret
+ENV USDANL http://github.com/nmaster/usdanl-sr28-mysql.git
 
-# Download the database
+# Install temp files
 WORKDIR /tmp
 COPY fix-utf8.sh sr28_import.patch init-db.sql /tmp/
 
-# Install unzip
+# Install build utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dos2unix \
     git \
@@ -18,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install the USDA database
 RUN set -ex; \
 #   Download the script that automates creation of the USDA database
-    git clone http://github.com/nmaster/usdanl-sr28-mysql.git; \
+    git clone $USDANL; \
     cd usdanl-sr28-mysql; \
 #   Fix the import script to perform some data cleanup before loading
     patch -p0 < ../sr28_import.patch; \
@@ -26,10 +27,11 @@ RUN set -ex; \
     sed -i -e 's}LOAD DATA INFILE}LOAD DATA LOCAL INFILE}' sr28_import.sh; \
     sed -i -e 's}usdanlsr28}usda}g' sr28_import.sh sr28_schema.sql; \
 #   Start MySQL server
-    (MYSQL_ROOT_PASSWORD=secret /docker-entrypoint.sh mysqld 2>/dev/null & ) ; \
+    (MYSQL_ROOT_PASSWORD=$PASSWORD /docker-entrypoint.sh mysqld 2>/dev/null & ) ; \
+    sleep 30; \
 #   Wait up to two minutes for server to start
-    for n in `seq 1 60`; do \
-        sleep 2; \
+    for n in `seq 1 120`; do \
+        sleep 1; \
         if service mysql status | egrep -q "is running"; then \
             break; \
         fi; \
@@ -39,10 +41,14 @@ RUN set -ex; \
         /bin/false; \
     fi; \
 #   Now run the install script
-    sh ./sr28_import.sh root secret; \
+    sh ./sr28_import.sh root $PASSWORD; \
 #   Export the newly-created database as a SQL script
     cp ../init-db.sql ../usda.sql; \
-    mysqldump -u root --password=secret usda >> ../usda.sql;
+    mysqldump -u root --password=$PASSWORD usda >> ../usda.sql;
+
+#
+#===============================================================================
+#
 
 # This is the Dockerfile for the final target image
 FROM percona:latest
