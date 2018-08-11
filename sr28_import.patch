@@ -1,0 +1,12 @@
+--- sr28_import.sh.orig	2018-08-11 15:12:10.000000000 -0400
++++ sr28_import.sh	2018-08-11 15:12:50.000000000 -0400
+@@ -7,6 +7,9 @@
+ # transform all data files from DOS to UNIX file format
+ dos2unix *.txt
+ 
++# Patch the data files to fix bad UTF-8 encodings
++sh ../fix-utf8.sh
++
+ # set MySQL variables used for later database management operations
+ MYSQL_HST=localhost
+ MYSQL_USR=$1

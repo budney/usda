@@ -1,0 +1,11 @@
+This image is built on the latest Percona MySQL image, with the
+addition of the USDA food nutrient database. When a new container
+is started the DB is created and MySQL server is launched, all ready
+to be queried.
+
+See also:
+
+* Food data: <https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/nutrient-data-laboratory/docs/sr28-download-files/>
+* Script files: <https://github.com/nmaster/usdanl-sr28-mysql>
+* Percona's instructions: <https://www.percona.com/doc/percona-server/LATEST/installation/docker.html>
+
