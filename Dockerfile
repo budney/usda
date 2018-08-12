@@ -42,7 +42,13 @@ RUN set -ex; \
     fi; \
 #   Now run the install script
     sh ./sr28_import.sh root $PASSWORD; \
-#   Export the newly-created database as a SQL script
+#   Export the newly-created database as a SQL script. Convert table
+#   and field names to lowercase in the process.
+    cp ../init-db.sql ../usda.sql; \
+    mysqldump -u root --password=$PASSWORD usda \
+        | tr A-Z a-z >> ../usda.sql; \
+#   Weird hack, but change all the table/field names to lowercase
+    mysql -u root --password=$PASSWORD < ../usda.sql; \
     cp ../init-db.sql ../usda.sql; \
     mysqldump -u root --password=$PASSWORD usda >> ../usda.sql;
 
