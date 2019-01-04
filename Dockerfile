@@ -4,7 +4,7 @@ ENV USDANL http://github.com/nmaster/usdanl-sr28-mysql.git
 
 # Install temp files
 WORKDIR /tmp
-COPY fix-utf8.sh sr28_import.patch init-usda-db.sql init-dri-db.sql dri-data.sql /tmp/
+COPY fix-utf8.sh sr28_import.patch init-usda-db.sql init-dri-db.sql init-fndds-db.sql dri-data.sql /tmp/
 
 # Install build utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -47,12 +47,13 @@ RUN set -ex; \
     cp ../init-usda-db.sql ../usda.sql; \
     mysqldump -u root --password=$PASSWORD usda \
         | tr A-Z a-z >> ../usda.sql; \
-#   Weird hack, but change all the table/field names to lowercase
+#   Recreate the DB and dump it to get a clean install script
     mysql -u root --password=$PASSWORD < ../usda.sql; \
     cp ../init-usda-db.sql ../usda.sql; \
     mysqldump -u root --password=$PASSWORD usda >> ../usda.sql; \
 #   Import the dietary reference intake data and sync it with the
-#   USDA data
+#   USDA data; then dump the result. (dri-data.sql isn't just a
+#   backup. It also does some SQL script stuff to linke the DBs.)
     cat ../init-dri-db.sql ../dri-data.sql \
         | mysql -u root --password=$PASSWORD; \
     cp ../init-dri-db.sql ../dri-data.sql; \
@@ -70,7 +71,7 @@ LABEL "net.jeenyus.usda.instructions"="https://www.percona.com/doc/percona-serve
 LABEL "net.jeenyus.usda.scripts"="https://github.com/nmaster/usdanl-sr28-mysql"
 
 # Copy the DB setup script
-COPY --from=build /tmp/usda.sql /tmp/dri-data.sql /docker-entrypoint-initdb.d/
+COPY --from=build /tmp/usda.sql /tmp/dri-data.sql /tmp/fndds-data.sql /docker-entrypoint-initdb.d/
 
 # By default, start MySQL server when container is started
 EXPOSE 3306
