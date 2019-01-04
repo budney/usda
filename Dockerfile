@@ -4,7 +4,7 @@ ENV USDANL http://github.com/nmaster/usdanl-sr28-mysql.git
 
 # Install temp files
 WORKDIR /tmp
-COPY fix-utf8.sh sr28_import.patch init-usda-db.sql init-dri-db.sql init-fndds-db.sql dri-data.sql /tmp/
+COPY fix-utf8.sh sr28_import.patch init-usda-db.sql fndds-data.sql init-dri-db.sql dri-data.sql /tmp/
 
 # Install build utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
