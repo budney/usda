@@ -4,7 +4,10 @@ ENV USDANL http://github.com/nmaster/usdanl-sr28-mysql.git
 
 # Install temp files
 WORKDIR /tmp
-COPY fix-utf8.sh sr28_import.patch init-usda-db.sql fndds-data.sql init-dri-db.sql dri-data.sql /tmp/
+COPY \
+    fix-utf8.sh fix_db_names.pl sr28_import.patch init-usda-db.sql \
+    fndds-data.sql init-dri-db.sql dri-data.sql \
+    /tmp/
 
 # Install build utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -46,7 +49,7 @@ RUN set -ex; \
 #   and field names to lowercase in the process.
     cp ../init-usda-db.sql ../usda.sql; \
     mysqldump -u root --password=$PASSWORD usda \
-        | tr A-Z a-z >> ../usda.sql; \
+        | perl ../fix_db_names.pl >> ../usda.sql; \
 #   Recreate the DB and dump it to get a clean install script
     mysql -u root --password=$PASSWORD < ../usda.sql; \
     cp ../init-usda-db.sql ../usda.sql; \
