@@ -4,7 +4,7 @@ ENV USDANL http://github.com/nmaster/usdanl-sr28-mysql.git
 
 # Install temp files
 WORKDIR /tmp
-COPY fix-utf8.sh sr28_import.patch init-db.sql /tmp/
+COPY fix-utf8.sh sr28_import.patch init-usda-db.sql init-dri-db.sql dri-data.sql /tmp/
 
 # Install build utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Install the USDA database
+# Install the USDA and DRI databases
 RUN set -ex; \
 #   Download the script that automates creation of the USDA database
     git clone $USDANL; \
@@ -44,13 +44,19 @@ RUN set -ex; \
     sh ./sr28_import.sh root $PASSWORD; \
 #   Export the newly-created database as a SQL script. Convert table
 #   and field names to lowercase in the process.
-    cp ../init-db.sql ../usda.sql; \
+    cp ../init-usda-db.sql ../usda.sql; \
     mysqldump -u root --password=$PASSWORD usda \
         | tr A-Z a-z >> ../usda.sql; \
 #   Weird hack, but change all the table/field names to lowercase
     mysql -u root --password=$PASSWORD < ../usda.sql; \
-    cp ../init-db.sql ../usda.sql; \
-    mysqldump -u root --password=$PASSWORD usda >> ../usda.sql;
+    cp ../init-usda-db.sql ../usda.sql; \
+    mysqldump -u root --password=$PASSWORD usda >> ../usda.sql; \
+#   Import the dietary reference intake data and sync it with the
+#   USDA data
+    cat ../init-dri-db.sql ../dri-data.sql \
+        | mysql -u root --password=$PASSWORD; \
+    cp ../init-dri-db.sql ../dri-data.sql; \
+    mysqldump -u root --password=$PASSWORD dietary_reference_intake >> ../dri-data.sql;
 
 #
 #===============================================================================
@@ -64,7 +70,7 @@ LABEL "net.jeenyus.usda.instructions"="https://www.percona.com/doc/percona-serve
 LABEL "net.jeenyus.usda.scripts"="https://github.com/nmaster/usdanl-sr28-mysql"
 
 # Copy the DB setup script
-COPY --from=build /tmp/usda.sql /docker-entrypoint-initdb.d/usda.sql
+COPY --from=build /tmp/usda.sql /tmp/dri-data.sql /docker-entrypoint-initdb.d/
 
 # By default, start MySQL server when container is started
 EXPOSE 3306
