@@ -51,6 +51,67 @@ INSERT INTO `age_ranges` VALUES (1,1,3),(2,4,8),(3,9,13),(4,14,18),(5,19,30),(6,
 UNLOCK TABLES;
 
 --
+-- Temporary table structure for view `dietary_reference_intake`
+--
+
+DROP TABLE IF EXISTS `dietary_reference_intake`;
+/*!50001 DROP VIEW IF EXISTS `dietary_reference_intake`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `dietary_reference_intake` AS SELECT 
+ 1 AS `age_from`,
+ 1 AS `age_to`,
+ 1 AS `sex`,
+ 1 AS `nutr_no`,
+ 1 AS `tagname`,
+ 1 AS `type`,
+ 1 AS `amount`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary table structure for view `dietary_reference_intake_flat`
+--
+
+DROP TABLE IF EXISTS `dietary_reference_intake_flat`;
+/*!50001 DROP VIEW IF EXISTS `dietary_reference_intake_flat`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `dietary_reference_intake_flat` AS SELECT 
+ 1 AS `age_from`,
+ 1 AS `age_to`,
+ 1 AS `sex`,
+ 1 AS `type`,
+ 1 AS `water`,
+ 1 AS `procnt`,
+ 1 AS `chocdf`,
+ 1 AS `fibtg`,
+ 1 AS `ca`,
+ 1 AS `fe`,
+ 1 AS `mg`,
+ 1 AS `p`,
+ 1 AS `k`,
+ 1 AS `na`,
+ 1 AS `zn`,
+ 1 AS `cu`,
+ 1 AS `mn`,
+ 1 AS `se`,
+ 1 AS `vitc`,
+ 1 AS `thia`,
+ 1 AS `ribf`,
+ 1 AS `nia`,
+ 1 AS `vitb6a`,
+ 1 AS `fol`,
+ 1 AS `choln`,
+ 1 AS `vitb12`,
+ 1 AS `vita_rae`,
+ 1 AS `tocpha`,
+ 1 AS `vitd`,
+ 1 AS `vitk1`,
+ 1 AS `f18d2`,
+ 1 AS `f18d3`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `reference_amounts`
 --
 
@@ -145,18 +206,40 @@ INSERT INTO `sexes` VALUES (1,'Female'),(2,'Lactating'),(3,'Male'),(4,'Pregnant'
 UNLOCK TABLES;
 
 --
--- Create a view that combines all those tables
+-- Final view structure for view `dietary_reference_intake`
 --
 
-CREATE VIEW `dietary_reference_intake` AS
-SELECT age_from, age_to, sex, nutr_no, tagname, type, amount
-FROM
-    reference_intake_by_age_and_sex
-    JOIN age_ranges USING(age_range_id)
-    JOIN sexes USING(sex_id)
-    JOIN reference_amounts USING(reference_amount_id);
+/*!50001 DROP VIEW IF EXISTS `dietary_reference_intake`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `dietary_reference_intake` AS select `age_ranges`.`age_from` AS `age_from`,`age_ranges`.`age_to` AS `age_to`,`sexes`.`sex` AS `sex`,`reference_amounts`.`nutr_no` AS `nutr_no`,`reference_amounts`.`tagname` AS `tagname`,`reference_intake_by_age_and_sex`.`type` AS `type`,`reference_amounts`.`amount` AS `amount` from (((`reference_intake_by_age_and_sex` join `age_ranges` on((`reference_intake_by_age_and_sex`.`age_range_id` = `age_ranges`.`age_range_id`))) join `sexes` on((`reference_intake_by_age_and_sex`.`sex_id` = `sexes`.`sex_id`))) join `reference_amounts` on((`reference_intake_by_age_and_sex`.`reference_amount_id` = `reference_amounts`.`reference_amount_id`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 
+--
+-- Final view structure for view `dietary_reference_intake_flat`
+--
 
+/*!50001 DROP VIEW IF EXISTS `dietary_reference_intake_flat`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = latin1 */;
+/*!50001 SET character_set_results     = latin1 */;
+/*!50001 SET collation_connection      = latin1_swedish_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `dietary_reference_intake_flat` AS select `age_ranges`.`age_from` AS `age_from`,`age_ranges`.`age_to` AS `age_to`,`sexes`.`sex` AS `sex`,`r1`.`type` AS `type`,`water`.`amount` AS `water`,`procnt`.`amount` AS `procnt`,`chocdf`.`amount` AS `chocdf`,`fibtg`.`amount` AS `fibtg`,`ca`.`amount` AS `ca`,`fe`.`amount` AS `fe`,`mg`.`amount` AS `mg`,`p`.`amount` AS `p`,`k`.`amount` AS `k`,`na`.`amount` AS `na`,`zn`.`amount` AS `zn`,`cu`.`amount` AS `cu`,`mn`.`amount` AS `mn`,`se`.`amount` AS `se`,`vitc`.`amount` AS `vitc`,`thia`.`amount` AS `thia`,`ribf`.`amount` AS `ribf`,`nia`.`amount` AS `nia`,`vitb6a`.`amount` AS `vitb6a`,`fol`.`amount` AS `fol`,`choln`.`amount` AS `choln`,`vitb12`.`amount` AS `vitb12`,`vita_rae`.`amount` AS `vita_rae`,`tocpha`.`amount` AS `tocpha`,`vitd`.`amount` AS `vitd`,`vitk1`.`amount` AS `vitk1`,`f18d2`.`amount` AS `f18d2`,`f18d3`.`amount` AS `f18d3` from (((((((((((((((((((((((((((((((((((((((((((((((((((((((((`sexes` straight_join `age_ranges`) straight_join `reference_intake_by_age_and_sex` `r1` on(((`r1`.`sex_id` = `sexes`.`sex_id`) and (`r1`.`age_range_id` = `age_ranges`.`age_range_id`)))) straight_join `reference_amounts` `water` USE INDEX (`reference_amount_id`) on(((`water`.`reference_amount_id` = `r1`.`reference_amount_id`) and (`water`.`tagname` = 'water')))) straight_join `reference_intake_by_age_and_sex` `r2` on(((`r2`.`sex_id` = `sexes`.`sex_id`) and (`r2`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r2`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `procnt` USE INDEX (`reference_amount_id`) on(((`procnt`.`reference_amount_id` = `r2`.`reference_amount_id`) and (`procnt`.`tagname` = 'procnt')))) straight_join `reference_intake_by_age_and_sex` `r3` on(((`r3`.`sex_id` = `sexes`.`sex_id`) and (`r3`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r3`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `chocdf` USE INDEX (`reference_amount_id`) on(((`chocdf`.`reference_amount_id` = `r3`.`reference_amount_id`) and (`chocdf`.`tagname` = 'chocdf')))) straight_join `reference_intake_by_age_and_sex` `r4` on(((`r4`.`sex_id` = `sexes`.`sex_id`) and (`r4`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r4`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `fibtg` USE INDEX (`reference_amount_id`) on(((`fibtg`.`reference_amount_id` = `r4`.`reference_amount_id`) and (`fibtg`.`tagname` = 'fibtg')))) straight_join `reference_intake_by_age_and_sex` `r5` on(((`r5`.`sex_id` = `sexes`.`sex_id`) and (`r5`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r5`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `ca` USE INDEX (`reference_amount_id`) on(((`ca`.`reference_amount_id` = `r5`.`reference_amount_id`) and (`ca`.`tagname` = 'ca')))) straight_join `reference_intake_by_age_and_sex` `r6` on(((`r6`.`sex_id` = `sexes`.`sex_id`) and (`r6`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r6`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `fe` USE INDEX (`reference_amount_id`) on(((`fe`.`reference_amount_id` = `r6`.`reference_amount_id`) and (`fe`.`tagname` = 'fe')))) straight_join `reference_intake_by_age_and_sex` `r7` on(((`r7`.`sex_id` = `sexes`.`sex_id`) and (`r7`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r7`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `mg` USE INDEX (`reference_amount_id`) on(((`mg`.`reference_amount_id` = `r7`.`reference_amount_id`) and (`mg`.`tagname` = 'mg')))) straight_join `reference_intake_by_age_and_sex` `r8` on(((`r8`.`sex_id` = `sexes`.`sex_id`) and (`r8`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r8`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `p` USE INDEX (`reference_amount_id`) on(((`p`.`reference_amount_id` = `r8`.`reference_amount_id`) and (`p`.`tagname` = 'p')))) straight_join `reference_intake_by_age_and_sex` `r9` on(((`r9`.`sex_id` = `sexes`.`sex_id`) and (`r9`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r9`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `k` USE INDEX (`reference_amount_id`) on(((`k`.`reference_amount_id` = `r9`.`reference_amount_id`) and (`k`.`tagname` = 'k')))) straight_join `reference_intake_by_age_and_sex` `r10` on(((`r10`.`sex_id` = `sexes`.`sex_id`) and (`r10`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r10`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `na` USE INDEX (`reference_amount_id`) on(((`na`.`reference_amount_id` = `r10`.`reference_amount_id`) and (`na`.`tagname` = 'na')))) straight_join `reference_intake_by_age_and_sex` `r11` on(((`r11`.`sex_id` = `sexes`.`sex_id`) and (`r11`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r11`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `zn` USE INDEX (`reference_amount_id`) on(((`zn`.`reference_amount_id` = `r11`.`reference_amount_id`) and (`zn`.`tagname` = 'zn')))) straight_join `reference_intake_by_age_and_sex` `r12` on(((`r12`.`sex_id` = `sexes`.`sex_id`) and (`r12`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r12`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `cu` USE INDEX (`reference_amount_id`) on(((`cu`.`reference_amount_id` = `r12`.`reference_amount_id`) and (`cu`.`tagname` = 'cu')))) straight_join `reference_intake_by_age_and_sex` `r13` on(((`r13`.`sex_id` = `sexes`.`sex_id`) and (`r13`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r13`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `mn` USE INDEX (`reference_amount_id`) on(((`mn`.`reference_amount_id` = `r13`.`reference_amount_id`) and (`mn`.`tagname` = 'mn')))) straight_join `reference_intake_by_age_and_sex` `r14` on(((`r14`.`sex_id` = `sexes`.`sex_id`) and (`r14`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r14`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `se` USE INDEX (`reference_amount_id`) on(((`se`.`reference_amount_id` = `r14`.`reference_amount_id`) and (`se`.`tagname` = 'se')))) straight_join `reference_intake_by_age_and_sex` `r15` on(((`r15`.`sex_id` = `sexes`.`sex_id`) and (`r15`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r15`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `vitc` USE INDEX (`reference_amount_id`) on(((`vitc`.`reference_amount_id` = `r15`.`reference_amount_id`) and (`vitc`.`tagname` = 'vitc')))) straight_join `reference_intake_by_age_and_sex` `r16` on(((`r16`.`sex_id` = `sexes`.`sex_id`) and (`r16`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r16`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `thia` USE INDEX (`reference_amount_id`) on(((`thia`.`reference_amount_id` = `r16`.`reference_amount_id`) and (`thia`.`tagname` = 'thia')))) straight_join `reference_intake_by_age_and_sex` `r17` on(((`r17`.`sex_id` = `sexes`.`sex_id`) and (`r17`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r17`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `ribf` USE INDEX (`reference_amount_id`) on(((`ribf`.`reference_amount_id` = `r17`.`reference_amount_id`) and (`ribf`.`tagname` = 'ribf')))) straight_join `reference_intake_by_age_and_sex` `r18` on(((`r18`.`sex_id` = `sexes`.`sex_id`) and (`r18`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r18`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `nia` USE INDEX (`reference_amount_id`) on(((`nia`.`reference_amount_id` = `r18`.`reference_amount_id`) and (`nia`.`tagname` = 'nia')))) straight_join `reference_intake_by_age_and_sex` `r19` on(((`r19`.`sex_id` = `sexes`.`sex_id`) and (`r19`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r19`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `vitb6a` USE INDEX (`reference_amount_id`) on(((`vitb6a`.`reference_amount_id` = `r19`.`reference_amount_id`) and (`vitb6a`.`tagname` = 'vitb6a')))) straight_join `reference_intake_by_age_and_sex` `r20` on(((`r20`.`sex_id` = `sexes`.`sex_id`) and (`r20`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r20`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `fol` USE INDEX (`reference_amount_id`) on(((`fol`.`reference_amount_id` = `r20`.`reference_amount_id`) and (`fol`.`tagname` = 'fol')))) straight_join `reference_intake_by_age_and_sex` `r21` on(((`r21`.`sex_id` = `sexes`.`sex_id`) and (`r21`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r21`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `choln` USE INDEX (`reference_amount_id`) on(((`choln`.`reference_amount_id` = `r21`.`reference_amount_id`) and (`choln`.`tagname` = 'choln')))) straight_join `reference_intake_by_age_and_sex` `r22` on(((`r22`.`sex_id` = `sexes`.`sex_id`) and (`r22`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r22`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `vitb12` USE INDEX (`reference_amount_id`) on(((`vitb12`.`reference_amount_id` = `r22`.`reference_amount_id`) and (`vitb12`.`tagname` = 'vitb12')))) straight_join `reference_intake_by_age_and_sex` `r23` on(((`r23`.`sex_id` = `sexes`.`sex_id`) and (`r23`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r23`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `vita_rae` USE INDEX (`reference_amount_id`) on(((`vita_rae`.`reference_amount_id` = `r23`.`reference_amount_id`) and (`vita_rae`.`tagname` = 'vita_rae')))) straight_join `reference_intake_by_age_and_sex` `r24` on(((`r24`.`sex_id` = `sexes`.`sex_id`) and (`r24`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r24`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `tocpha` USE INDEX (`reference_amount_id`) on(((`tocpha`.`reference_amount_id` = `r24`.`reference_amount_id`) and (`tocpha`.`tagname` = 'tocpha')))) straight_join `reference_intake_by_age_and_sex` `r25` on(((`r25`.`sex_id` = `sexes`.`sex_id`) and (`r25`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r25`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `vitd` USE INDEX (`reference_amount_id`) on(((`vitd`.`reference_amount_id` = `r25`.`reference_amount_id`) and (`vitd`.`tagname` = 'vitd')))) straight_join `reference_intake_by_age_and_sex` `r26` on(((`r26`.`sex_id` = `sexes`.`sex_id`) and (`r26`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r26`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `vitk1` USE INDEX (`reference_amount_id`) on(((`vitk1`.`reference_amount_id` = `r26`.`reference_amount_id`) and (`vitk1`.`tagname` = 'vitk1')))) straight_join `reference_intake_by_age_and_sex` `r27` on(((`r27`.`sex_id` = `sexes`.`sex_id`) and (`r27`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r27`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `f18d2` USE INDEX (`reference_amount_id`) on(((`f18d2`.`reference_amount_id` = `r27`.`reference_amount_id`) and (`f18d2`.`tagname` = 'f18d2')))) straight_join `reference_intake_by_age_and_sex` `r28` on(((`r28`.`sex_id` = `sexes`.`sex_id`) and (`r28`.`age_range_id` = `age_ranges`.`age_range_id`) and (`r28`.`type` = `r1`.`type`)))) straight_join `reference_amounts` `f18d3` USE INDEX (`reference_amount_id`) on(((`f18d3`.`reference_amount_id` = `r28`.`reference_amount_id`) and (`f18d3`.`tagname` = 'f18d3')))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!50112 SET @disable_bulk_load = IF (@is_rocksdb_supported, 'SET SESSION rocksdb_bulk_load = @old_rocksdb_bulk_load', 'SET @dummy_rocksdb_bulk_load = 0') */;
 /*!50112 PREPARE s FROM @disable_bulk_load */;
 /*!50112 EXECUTE s */;
