@@ -35,8 +35,9 @@ CREATE TABLE `age_ranges` (
   `age_range_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `age_from` int(10) unsigned NOT NULL,
   `age_to` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`age_range_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`age_range_id`),
+  KEY `age_range_id` (`age_range_id`,`age_from`,`age_to`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -58,11 +59,13 @@ DROP TABLE IF EXISTS `reference_amounts`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `reference_amounts` (
   `reference_amount_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `nutr_no` char(3) DEFAULT NULL,
+  `nutr_no` char(3) NOT NULL,
   `tagname` char(20) NOT NULL,
   `amount` decimal(10,3) NOT NULL,
   PRIMARY KEY (`reference_amount_id`),
-  UNIQUE KEY `tagname` (`tagname`,`amount`)
+  UNIQUE KEY `tagname` (`tagname`,`amount`),
+  UNIQUE KEY `nutr_no` (`nutr_no`,`amount`),
+  KEY `reference_amount_id` (`reference_amount_id`,`tagname`,`amount`)
 ) ENGINE=InnoDB AUTO_INCREMENT=267 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -100,7 +103,9 @@ CREATE TABLE `reference_intake_by_age_and_sex` (
   `age_range_id` int(10) unsigned NOT NULL DEFAULT '0',
   `sex_id` int(10) unsigned NOT NULL DEFAULT '0',
   `type` enum('recommended','tolerable_upper') NOT NULL,
-  `reference_amount_id` int(10) unsigned NOT NULL DEFAULT '0'
+  `reference_amount_id` int(10) unsigned NOT NULL DEFAULT '0',
+  UNIQUE KEY `age_range_id` (`age_range_id`,`sex_id`,`reference_amount_id`,`type`),
+  KEY `age_range_id_2` (`age_range_id`,`sex_id`,`type`,`reference_amount_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -126,7 +131,7 @@ CREATE TABLE `sexes` (
   `sex` char(9) NOT NULL,
   PRIMARY KEY (`sex_id`),
   UNIQUE KEY `sex` (`sex`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -166,4 +171,4 @@ FROM
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-12-27  0:22:32
+-- Dump completed on 2019-01-17 14:43:26
