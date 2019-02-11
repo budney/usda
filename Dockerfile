@@ -6,7 +6,7 @@ ENV USDANL http://github.com/nmaster/usdanl-sr28-mysql.git
 WORKDIR /tmp
 COPY \
     fix-utf8.sh fix_db_names.pl sr28_import.patch init-usda-db.sql \
-    fndds-data.sql init-dri-db.sql dri-data.sql \
+    fndds-data.sql init-dri-db.sql dri-data.sql food_cost_2004.sql \
     /tmp/
 
 # Install build utilities
