@@ -1,4 +1,6 @@
 FROM percona:latest as build
+USER root
+
 ENV PASSWORD secret
 ENV USDANL http://github.com/nmaster/usdanl-sr28-mysql.git
 
@@ -10,14 +12,14 @@ COPY \
     /tmp/
 
 # Install build utilities
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN yum updateinfo && yum install -y \
     dos2unix \
     git \
     less \
     patch \
     unzip \
     wget \
-    && rm -rf /var/lib/apt/lists/*
+    && yum clean all
 
 # Install the USDA and DRI databases
 RUN set -ex; \
@@ -30,17 +32,17 @@ RUN set -ex; \
     sed -i -e 's}LOAD DATA INFILE}LOAD DATA LOCAL INFILE}' sr28_import.sh; \
     sed -i -e 's}usdanlsr28}usda}g' sr28_import.sh sr28_schema.sql; \
 #   Start MySQL server
-    (MYSQL_ROOT_PASSWORD=$PASSWORD /docker-entrypoint.sh mysqld 2>/dev/null & ) ; \
-    sleep 30; \
+    (MYSQL_ROOT_PASSWORD=$PASSWORD runuser -pu mysql /docker-entrypoint.sh mysqld 2>/dev/null & ) ; \
+    sleep 60; \
 #   Wait up to two minutes for server to start
-    for n in `seq 1 120`; do \
-        sleep 1; \
-        if service mysql status | egrep -q "is running"; then \
+    for n in {59..0}; do \
+        sleep 2; \
+        if echo 'SELECT 1' | mysql -u root --password=$PASSWORD &> /dev/null; then \
             break; \
         fi; \
     done; \
 #   If it didn't start, abort
-    if ! service mysql status | egrep -q "is running"; then \
+    if ["$n" = 0]; then \
         /bin/false; \
     fi; \
 #   Now run the install script
@@ -59,7 +61,7 @@ RUN set -ex; \
 #   backup. It also does some SQL script stuff to linke the DBs.)
     cat ../init-dri-db.sql ../dri-data.sql \
         | mysql -u root --password=$PASSWORD; \
-    cp ../init-dri-db.sql ../dri-data.sql; \
+    cat ../init-dri-db.sql > ../dri-data.sql; \
     mysqldump -u root --password=$PASSWORD dietary_reference_intake >> ../dri-data.sql;
 
 #
@@ -78,6 +80,6 @@ COPY --from=build /tmp/usda.sql /tmp/dri-data.sql /tmp/fndds-data.sql /docker-en
 
 # By default, start MySQL server when container is started
 EXPOSE 3306
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["mysqld"]
 
