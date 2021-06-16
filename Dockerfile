@@ -8,7 +8,7 @@ ENV USDANL http://github.com/nmaster/usdanl-sr28-mysql.git
 WORKDIR /tmp
 COPY \
     fix-utf8.sh fix_db_names.pl sr28_import.patch init-usda-db.sql \
-    fndds-data.sql init-dri-db.sql dri-data.sql \
+    fndds-data.sql init-dri-db.sql dri-data.sql init-contrib-db.sql contrib.sql \
     /tmp/
 
 # Install build utilities
@@ -49,20 +49,31 @@ RUN set -ex; \
     sh ./sr28_import.sh root $PASSWORD; \
 #   Export the newly-created database as a SQL script. Convert table
 #   and field names to lowercase in the process.
-    cp ../init-usda-db.sql ../usda.sql; \
+    cp ../init-usda-db.sql ../01-usda-data.sql; \
     mysqldump -u root --password=$PASSWORD usda \
-        | perl ../fix_db_names.pl >> ../usda.sql; \
+        | perl ../fix_db_names.pl >> ../01-usda-data.sql; \
 #   Recreate the DB and dump it to get a clean install script
-    mysql -u root --password=$PASSWORD < ../usda.sql; \
-    cp ../init-usda-db.sql ../usda.sql; \
-    mysqldump -u root --password=$PASSWORD usda >> ../usda.sql; \
+    mysql -u root --password=$PASSWORD < ../01-usda-data.sql; \
+    cp ../init-usda-db.sql ../01-usda-data.sql; \
+    mysqldump -u root --password=$PASSWORD usda >> ../01-usda-data.sql; \
 #   Import the dietary reference intake data and sync it with the
 #   USDA data; then dump the result. (dri-data.sql isn't just a
 #   backup. It also does some SQL script stuff to linke the DBs.)
     cat ../init-dri-db.sql ../dri-data.sql \
         | mysql -u root --password=$PASSWORD; \
-    cat ../init-dri-db.sql > ../dri-data.sql; \
-    mysqldump -u root --password=$PASSWORD dietary_reference_intake >> ../dri-data.sql;
+    cat ../init-dri-db.sql > ../02-dri-data.sql; \
+    mysqldump -u root --password=$PASSWORD dietary_reference_intake >> ../02-dri-data.sql; \
+# Import the fndds data, b/c the next step references it
+    cp ../fndds-data.sql ../03-fndds-data.sql; \
+    cat ../fndds-data.sql \
+        | mysql -u root --password=$PASSWORD; \
+# Import the contributed data; then dump the result
+    cat ../init-contrib-db.sql ../contrib.sql \
+        | mysql -u root --password=$PASSWORD; \
+    cat ../init-contrib-db.sql > ../04-contrib-data.sql; \
+    mysqldump -u root --password=$PASSWORD contrib >> ../04-contrib-data.sql; \
+# Shut down the database
+    mysqladmin -u root --password=$PASSWORD shutdown;
 
 #
 #===============================================================================
@@ -76,7 +87,7 @@ LABEL "net.jeenyus.usda.instructions"="https://www.percona.com/doc/percona-serve
 LABEL "net.jeenyus.usda.scripts"="https://github.com/nmaster/usdanl-sr28-mysql"
 
 # Copy the DB setup script
-COPY --from=build /tmp/usda.sql /tmp/dri-data.sql /tmp/fndds-data.sql /docker-entrypoint-initdb.d/
+COPY --from=build /tmp/01-usda-data.sql /tmp/02-dri-data.sql /tmp/03-fndds-data.sql /tmp/04-contrib-data.sql /docker-entrypoint-initdb.d/
 
 # By default, start MySQL server when container is started
 EXPOSE 3306

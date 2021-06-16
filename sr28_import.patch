@@ -5,7 +5,7 @@
  dos2unix *.txt
  
 +# Patch the data files to fix bad UTF-8 encodings
-+sh ../fix-utf8.sh
++sh /tmp/fix-utf8.sh
 +
  # set MySQL variables used for later database management operations
  MYSQL_HST=localhost
