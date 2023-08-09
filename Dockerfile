@@ -1,4 +1,4 @@
-FROM percona:latest as build
+FROM percona/percona-server:latest as build
 USER root
 
 ENV PASSWORD secret
@@ -80,7 +80,7 @@ RUN set -ex; \
 #
 
 # This is the Dockerfile for the final target image
-FROM percona:latest
+FROM percona/percona-server:latest
 LABEL maintainer="Len Budney (len.budney@gmail.com)"
 LABEL "net.jeenyus.usda.source"="https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/nutrient-data-laboratory/docs/sr28-download-files/"
 LABEL "net.jeenyus.usda.instructions"="https://www.percona.com/doc/percona-server/LATEST/installation/docker.html"
